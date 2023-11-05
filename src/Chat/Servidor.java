@@ -5,85 +5,67 @@ import java.net.Socket;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
 
-/**
- * Clase en la que se maneja la comunicación del lado del servidor.
- * @author Erick Navarro
- */
+
 public class Servidor extends Thread{    
-    /**
-     * Socket servidor que tiene como principal función escuchar cuando los clientes
-     * se conectan para incluirlos en el chat.
-     */
-    private ServerSocket serverSocket;
-    /**
-     * Lista de todos los hilos de comunicación, para cada cliente se instancia uno 
-     * de estos hilos ya que cada hilo esta escuchando permanentemente lo que dicho 
-     * cliente envía al servidor. 
-     */
+  
+	//Socket de escucha del servidor para evaluar los clientes que se conectan
+    private ServerSocket sSocket;
+   
+    //Hilos de conexion de cada cliente
     LinkedList<HiloCliente> clientes;
-    /**
-     * Variable que almacena la ventana que gestiona la interfaz gráfica del servidor.
-     */
+    
+    //Interface grafica del servidor
     private final EjecutableServidor ventana;
-    /**
-     * Variable que almacena el puerto que el servidor usará para escuchar. 
-     */
+
+    //Puerto de conexion
     private final String puerto;
+    
+    //Identificador unico por cada cliente que se conecta
+    static int identificadorCliente;
+    
     /**
-     * Correlativo para diferenciar a los múltiples clientes que se conectan, si se 
-     * conectaran, por ejemplo, dos usuarios con el mismo nombre, se podrían diferenciar
-     * por este correlativo.
-     */
-    static int correlativo;
-    /**
-     * Constructor del servidor.
+     * Constructor.
      * @param puerto
      * @param ventana 
      */
     public Servidor(String puerto, EjecutableServidor ventana) {
-        correlativo=0;
+    	identificadorCliente=0;
         this.puerto=puerto;
         this.ventana=ventana;
         clientes=new LinkedList<>();
         this.start();
     }
-    /**
-     * Método sobre el que corre el bucle infinito que tiene como función escuchar
-     * permenentemente en espera de conexiones de nuevos clientes.
-     */    
+    
+    //Metodo de escucha del servidor 
     public void run() {
         try {
-            serverSocket = new ServerSocket(Integer.valueOf(puerto));
+        	sSocket = new ServerSocket(Integer.valueOf(puerto));
             ventana.addServidorIniciado();
             while (true) {
                 HiloCliente h;
                 Socket socket;
-                socket = serverSocket.accept();
+                socket = sSocket.accept();
                 System.out.println("Nueva conexion entrante: "+socket);
                 h=new HiloCliente(socket, this);               
                 h.start();
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(ventana, "El servidor no se ha podido iniciar,\n"
-                                                 + "puede que haya ingresado un puerto incorrecto.\n"
-                                                 + "Esta aplicación se cerrará.");
+            JOptionPane.showMessageDialog(ventana, "Error al iniciar el servidor,\n"
+                                                 + "por favor verifique los datos ingresados.\n"
+                                                 + "el aplicativo se cerrara.");
             System.exit(0);
         }                
     }        
-    /**
-     * Ciclo que devuelve una lista con los identificadores de todos los clientes
-     * conectados.
-     * @return 
-     */
+    
+    //Log de clientes conectados
     LinkedList<String> getUsuariosConectados() {
         LinkedList<String>usuariosConectados=new LinkedList<>();
         clientes.stream().forEach(c -> usuariosConectados.add(c.getIdentificador()));
         return usuariosConectados;
     }
-    /**
-     * Método que agrega una linea al log de la interfaz gráfica del servidor.
-     * @param texto 
-     */
+    
+    
+    //Añade una linea al log
     void agregarLog(String texto) {
         ventana.agregarLog(texto);
     }

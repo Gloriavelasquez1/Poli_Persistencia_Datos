@@ -1,6 +1,8 @@
 package Chat;
 
 import java.awt.GridLayout;
+import java.net.InetAddress;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -8,11 +10,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class EjecutableServidor extends javax.swing.JFrame {
-    private final String DEFAULT_PORT="10101";
-    private final Servidor servidor;
-    /**
-     * Creates new form Ventana
-     */
+    //private final String DEFAULT_PORT="10101";
+    //private final String DEFAULT_PORT="42455";
+    private String puerto = "42455";
+    private final Servidor servidor;    
+   
+    //Metodo que crea la ventana emergente
     public EjecutableServidor() {
         initComponents();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -96,25 +99,18 @@ public class EjecutableServidor extends javax.swing.JFrame {
             }
         });
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+   
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea txtClientes;
-    // End of variables declaration//GEN-END:variables
-    /**
-     * Método que agrega una línea de texto al log.
-     * @param texto 
-     */
+    private javax.swing.JTextArea txtClientes;    
+   
+    //Agrega una linea al log
     void agregarLog(String texto) {
         txtClientes.append(texto);
     }
-    /**
-     * Método que abre una ventana para que el usuario ingrese el puerto que 
-     * desea utilizar para que el servidor escuche.
-     * @return 
-     */
+    
+    //Metodo para la captura del puerto
     private String getPuerto() {
-        String p=DEFAULT_PORT;
+        String p= this.puerto;
         JTextField puerto = new JTextField(20);
         puerto.setText(p);
         JPanel myPanel = new JPanel();
@@ -130,11 +126,15 @@ public class EjecutableServidor extends javax.swing.JFrame {
         }
         return p;
     }
-    /**
-     * Método que agrega un mensaje de confirmación al log cuando el servidor está
-     * corriendo correctamente.
-     */
-    void addServidorIniciado() {
-        txtClientes.setText("Inicializando el servidor... [Ok].");
+    
+   //Validacion del funcionamiento del servidor
+    void addServidorIniciado() {    	
+    	try {
+    		InetAddress direccionIP = InetAddress.getLocalHost();
+            String direccion = direccionIP.getHostAddress();       	
+            txtClientes.setText("Iniciando servidor... [Ok]. \n " + "Dirección IP del servidor: " + direccion + " \n Puerto : " + puerto);
+        } catch (Exception ex) {
+        	txtClientes.setText("Ha ocurrido un error al consultar la IP: " + ex.getMessage());
+        }    	
     }        
 }
